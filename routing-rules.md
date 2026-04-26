@@ -38,7 +38,21 @@ Then add the public key to GitHub
 
 ---
 
-## Docker Permission Error
+### Docker Permission Error
+
+### Match Signals
+```text
+- permission denied while trying to connect to the Docker daemon socket
+- /var/run/docker.sock
+- Got permission denied
+- docker ps
+```
+### Likely Cause
+
+The current Ubuntu user may not be in the `docker` group, or the user was added to the group but has not logged out and back in yet.
+
+### First Check
+
 
 ### Match Signals
 
@@ -46,24 +60,24 @@ Then add the public key to GitHub
 
 ### First Check
 
-### Expected Result
+```bash
 
-### Next Action
-
----
-
-## Linux Permission Error
-
-### Match Signals
-
-### Likely Cause
-
-### First Check
+groups
+```
 
 ### Expected Result
+If docker is missing from the group list, add the current user to the Docker group:
+
+```bash
+sudo usermod -aG docker $USER
+```
 
 ### Next Action
+If docker is missing from the group list, add the current user to the Docker group:
 
+```bash
+sudo usermod -aG docker $USER
+```
 ---
 
 ## Python Dependency Error

@@ -27,6 +27,15 @@ def classify(observed_error):
     if "could not read from remote repository" in observed_error:
         return "Git / SSH Authentication"
 
+    if "docker.sock" in observed_error:
+        return "Docker Permission Error"
+
+    if (
+        "permission denied while trying to connect to the docker daemon socket"
+        in observed_error
+    ):
+        return "Docker Permission Error"
+
     return "Unknown"
 
 
@@ -44,14 +53,25 @@ def route(category):
             "confidence": "High",
         }
 
-    return {
-        "category": "Unknown",
-        "likely_cause": "The error message does not match a supported rule yet.",
-        "first_check": "Review the full error message.",
-        "expected_result": "You should identify words or phrases that can become match signals.",
-        "next_action": "Add a new routing rule for this error type.",
-        "confidence": "Low",
-    }
+    if category == "Docker Permission Error":
+        return {
+            "category": "Docker Permission Error",
+            "likely_cause": "The current Ubuntu user may not be in the docker group, or the user was added to the group but has not logged out and back in yet.",
+            "first_check": "groups",
+            "expected_result": "The output should include docker.",
+            "next_action": "If docker is missing, run: sudo usermod -aG docker $USER. Then log out and back in, or run: newgrp docker. After that, test with: docker ps",
+            "confidence": "High",
+        }
+
+        # return to user when the error messae does not match any known category
+        return {
+            "category": "Unknown",
+            "likely_cause": "The error message does not match a supported rule yet.",
+            "first_check": "Review the full error message.",
+            "expected_result": "You should identify words or phrases that can become match signals.",
+            "next_action": "Add a new routing rule for this error type.",
+            "confidence": "Low",
+        }
 
 
 def recommend(error_message):
